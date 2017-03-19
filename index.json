@@ -1,0 +1,115 @@
+{
+    "benchmarks": {
+        "benchmarks.ExampleSuite.time_drug_evaluation": {
+            "code": "def time_drug_evaluation(self):\n    drug = np.array([101, 100, 102, 104, 102, 97, 105, 105, 98, 101,\n                     100, 123, 105, 103, 100, 95, 102, 106, 109, 102, 82,\n                     102, 100, 102, 102, 101, 102, 102, 103, 103, 97, 97,\n                     103, 101, 97, 104, 96, 103, 124, 101, 101, 100, 101,\n                     101, 104, 100, 101])\n    placebo = np.array([99, 101, 100, 101, 102, 100, 97, 101, 104, 101,\n                        102, 102, 100, 105, 88, 101, 100, 104, 100, 100,\n                        100, 101, 102, 103, 97, 101, 101, 100, 101, 99,\n                        101, 100, 100, 101, 100, 99, 101, 100, 102, 99,\n                        100, 99])\n\n    y = pd.DataFrame({\n        'value': np.r_[drug, placebo],\n        'group': np.r_[['drug']*len(drug), ['placebo']*len(placebo)]\n        })\n    y_mean = y.value.mean()\n    y_std = y.value.std() * 2\n\n    sigma_low = 1\n    sigma_high = 10\n    with pm.Model() as model:\n        group1_mean = pm.Normal('group1_mean', y_mean, sd=y_std)\n        group2_mean = pm.Normal('group2_mean', y_mean, sd=y_std)\n        group1_std = pm.Uniform('group1_std', lower=sigma_low, upper=sigma_high)\n        group2_std = pm.Uniform('group2_std', lower=sigma_low, upper=sigma_high)\n        lambda_1 = group1_std**-2\n        lambda_2 = group2_std**-2\n\n        nu = pm.Exponential('\u03bd_minus_one', 1/29.) + 1\n\n        group1 = pm.StudentT('drug', nu=nu, mu=group1_mean, lam=lambda_1,\n                             observed=drug)\n        group2 = pm.StudentT('placebo', nu=nu, mu=group2_mean, lam=lambda_2,\n                             observed=placebo)\n        diff_of_means = pm.Deterministic('difference of means', group1_mean - group2_mean)\n        diff_of_stds = pm.Deterministic('difference of stds', group1_std - group2_std)\n        effect_size = pm.Deterministic(\n            'effect size', diff_of_means / np.sqrt((group1_std**2 + group2_std**2) / 2))\n        trace = pm.sample(2000, init=None, njobs=2)\n",
+            "goal_time": 2.0,
+            "name": "benchmarks.ExampleSuite.time_drug_evaluation",
+            "number": 0,
+            "param_names": [],
+            "params": [],
+            "pretty_name": "benchmarks.ExampleSuite.time_drug_evaluation",
+            "repeat": 0,
+            "timeout": 360.0,
+            "type": "time",
+            "unit": "seconds"
+        },
+        "benchmarks.OverheadSuite.time_overhead_sample": {
+            "code": "def time_overhead_sample(self, step):\n    with self.model:\n        pm.sample(self.n_steps, step=step(), random_seed=1)\n",
+            "goal_time": 2.0,
+            "name": "benchmarks.OverheadSuite.time_overhead_sample",
+            "number": 0,
+            "param_names": [
+                "param1"
+            ],
+            "params": [
+                [
+                    "<class 'pymc3.step_methods.hmc.nuts.NUTS'>",
+                    "<class 'pymc3.step_methods.hmc.hmc.HamiltonianMC'>",
+                    "<class 'pymc3.step_methods.metropolis.Metropolis'>",
+                    "<class 'pymc3.step_methods.slicer.Slice'>"
+                ]
+            ],
+            "pretty_name": "benchmarks.OverheadSuite.time_overhead_sample",
+            "repeat": 0,
+            "timeout": 60.0,
+            "type": "time",
+            "unit": "seconds"
+        }
+    },
+    "graph_param_list": [],
+    "hash_length": 8,
+    "machines": {
+        "ip-10-0-0-13": {
+            "arch": "x86_64",
+            "cpu": "Intel(R) Xeon(R) CPU E5-2676 v3 @ 2.40GHz",
+            "machine": "ip-10-0-0-13",
+            "os": "Linux 4.4.0-66-generic",
+            "ram": "16431232",
+            "version": 1
+        }
+    },
+    "pages": [
+        [
+            "",
+            "Grid view",
+            "Display as a agrid"
+        ],
+        [
+            "summarylist",
+            "List view",
+            "Display as a list"
+        ],
+        [
+            "regressions",
+            "Show regressions",
+            "Display information about recent regressions"
+        ]
+    ],
+    "params": {
+        "arch": [
+            "x86_64"
+        ],
+        "branch": [
+            "master"
+        ],
+        "cpu": [
+            "Intel(R) Xeon(R) CPU E5-2676 v3 @ 2.40GHz"
+        ],
+        "machine": [
+            "ip-10-0-0-13"
+        ],
+        "os": [
+            "Linux 4.4.0-66-generic"
+        ],
+        "python": [
+            "3.6"
+        ],
+        "ram": [
+            "16431232"
+        ],
+        "six": [
+            ""
+        ]
+    },
+    "project": "pymc3",
+    "project_url": "https://pymc-devs.github.io/pymc3/",
+    "revision_to_date": {
+        "2826": 1367715042000,
+        "3783": 1434609244000,
+        "5542": 1489160571000,
+        "5543": 1488150532000,
+        "5544": 1489957230000
+    },
+    "revision_to_hash": {
+        "2826": "a49124117eb037653655cdd022eafcc8ba655d1c",
+        "3783": "140f417bc9291a75633c7875d2fcb299f793a183",
+        "5542": "f4d9a7c3a72d9bd56c35f687e87def850732a673",
+        "5543": "5f0117ff3f1dfd71eb36cc3ed58191bcde4ed229",
+        "5544": "383bf6969c627d9fdc2462581d5239b088bdec92"
+    },
+    "show_commit_url": "https://github.com/pymc-devs/pymc3/commit/",
+    "tags": {
+        "v3.0alpha": 2826,
+        "v3.0beta": 3783
+    }
+}
